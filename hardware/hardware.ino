@@ -59,7 +59,10 @@ static uint16_t mqtt_port         = 1883;
 const char* ssid                  = "CWC-1528429"; // Add your Wi-Fi ssid
 const char* password              = "w2jbMwtJdrvc"; // Add your Wi-Fi password 
 
+int msgCounter = 0;
+bool lastButtonState = HIGH;
 
+uint8_t number = 0;
 
 
 // TASK HANDLES 
@@ -117,9 +120,13 @@ void setup() {
   pinMode(LED_B,OUTPUT);
   pinMode(BTN_A,OUTPUT);
 
+  //Intial states
+  digitalWrite(LED_A, LOW);
+  digitalWrite(LED_B, LOW);
+
 
   initialize();           // INIT WIFI, MQTT & NTP 
-  // vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
+  vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
 
 }
   
@@ -142,7 +149,25 @@ void vButtonCheck( void * pvParameters )  {
       
     for( ;; ) {
         // Add code here to check if a button(S) is pressed
-        // then execute appropriate function if a button is pressed  
+        // then execute appropriate function if a button is pressed
+        int currentButtonState = digitalRead(BTN_A);
+
+        if(currentButtonState == LOW && lastButtonState == HIGH){
+          Serial.println("Button pressed!");
+          toggleLED(LED_A);
+
+          msgCounter++;
+          number = msgCounter % 10;
+          vDisplay(number);
+
+          GDP();
+
+          while(digitalRead(BTN_A) == LOW){
+            vTaskDelay(10/ portTICK_PERIOD_MS);
+          }
+        }
+        lastButtonState = currentButtonState;
+
 
         vTaskDelay(200 / portTICK_PERIOD_MS);  
     }
@@ -213,9 +238,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     if(strcmp(led, "LED A") == 0){
       /*Add code to toggle LED A with appropriate function*/
+      toggleLED(LED_A);
+
     }
     if(strcmp(led, "LED B") == 0){
       /*Add code to toggle LED B with appropriate function*/
+      toggleLED(LED_B);
     }
 
     // PUBLISH UPDATE BACK TO FRONTEND
@@ -224,11 +252,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     // Add key:value pairs to Json object according to below schema
     // ‘{"id": "student_id", "timestamp": 1702212234, "number": 9, "ledA": 0, "ledB": 0}’
-    doc["id"]         = "ID"; // Change to your student ID number
+    doc["id"]         = "620172489"; // Change to your student ID number
     doc["timestamp"]  = getTimeStamp();
     /*Add code here to insert all other variabes that are missing from Json object
     according to schema above
     */
+    doc["number"] = number;
+    doc["ledA"] = getLEDStatus(LED_A);
+    doc["ledB"] = getLEDStatus(LED_B);
 
     serializeJson(doc, message);  // Seralize / Covert JSon object to JSon string and store in char* array  
     publish("topic", message);    // Publish to a topic that only the Frontend subscribes to.
@@ -257,19 +288,131 @@ bool publish(const char *topic, const char *payload){
 
 void Display(unsigned char number){
   /* This function takes an integer between 0 and 9 as input. This integer must be written to the 7-Segment display */
+  digitalWrite(a, LOW);
+  digitalWrite(b, LOW);
+  digitalWrite(c, LOW);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, LOW);
+  digitalWrite(g, LOW);
+  digitalWrite(dp, LOW);
   
+  // Display numbers 0-9 on 7-segment display
+  switch(number) {
+    case 0:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, HIGH);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, LOW);
+      break;
+    case 1:
+      digitalWrite(a, LOW);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, LOW);
+      digitalWrite(e, LOW);
+      digitalWrite(f, LOW);
+      digitalWrite(g, LOW);
+      break;
+    case 2:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, LOW);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, HIGH);
+      digitalWrite(f, LOW);
+      digitalWrite(g, HIGH);
+      break;
+    case 3:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, LOW);
+      digitalWrite(f, LOW);
+      digitalWrite(g, HIGH);
+      break;
+    case 4:
+      digitalWrite(a, LOW);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, LOW);
+      digitalWrite(e, LOW);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      break;
+    case 5:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, LOW);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, LOW);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      break;
+    case 6:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, LOW);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, HIGH);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      break;
+    case 7:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, LOW);
+      digitalWrite(e, LOW);
+      digitalWrite(f, LOW);
+      digitalWrite(g, LOW);
+      break;
+    case 8:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, HIGH);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      break;
+    case 9:
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, LOW);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      break;
+    default:
+      // Turn off all segments for invalid numbers
+      break;
+  }
 }
 
 int8_t getLEDStatus(int8_t LED) {
   // RETURNS THE STATE OF A SPECIFIC LED. 0 = LOW, 1 = HIGH  
+  return digitalRead(LED);
 }
 
 void setLEDState(int8_t LED, int8_t state){
   // SETS THE STATE OF A SPECIFIC LED   
+  digitalWrite(LED, state);
+  Serial.print("LED ");
+  Serial.print(LED);
+  Serial.print(" set to ");
+  Serial.print(state == HIGH ? "HIGH" : "LOW");
 }
 
 void toggleLED(int8_t LED){
-  // TOGGLES THE STATE OF SPECIFIC LED   
+  // TOGGLES THE STATE OF SPECIFIC LED
+  int8_t currentState = getLEDstatus(LED);
+  setLEDState(LED, !currentState);   
 }
 
 void GDP(void){
@@ -279,22 +422,25 @@ void GDP(void){
   /* Add code here to generate a random integer and then assign 
      this integer to number variable below
   */
-   number = 0 ;
+   number = random(0,10) ;
 
   // DISPLAY integer on 7Seg. by 
   /* Add code here to calling appropriate function that will display integer to 7-Seg*/
-
+  vDisplay(number);
   // PUBLISH number to topic.
   JsonDocument doc; // Create JSon object
   char message[1100]  = {0};
 
   // Add key:value pairs to Json object according to below schema
   // ‘{"id": "student_id", "timestamp": 1702212234, "number": 9, "ledA": 0, "ledB": 0}’
-  doc["id"]         = "ID"; // Change to your student ID number
+  doc["id"]         = "620172489"; // Change to your student ID number
   doc["timestamp"]  = getTimeStamp();
   /*Add code here to insert all other variabes that are missing from Json object
   according to schema above
   */
+ doc["number"] = number;
+ doc["ledA"] = getLEDStatus(LED_A);
+ doc["ledB"] = getLEDStatus(LED_B);
 
   serializeJson(doc, message);  // Seralize / Covert JSon object to JSon string and store in char* array
   publish(pubtopic, message);
