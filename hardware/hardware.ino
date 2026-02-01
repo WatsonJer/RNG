@@ -52,7 +52,7 @@
 // MQTT CLIENT CONFIG  
 static const char* pubtopic       = "620172489";                    // Add your ID number here
 static const char* subtopic[]     = {"620172489_sub","/elet2415"};  // Array of Topics(Strings) to subscribe to
-static const char* mqtt_server    = "localhost";                // Broker IP address or Domain name as a String 
+static const char* mqtt_server    = "www.yanacreations.com";                // Broker IP address or Domain name as a String 
 static uint16_t mqtt_port         = 1883;
 
 // WIFI CREDENTIALS
@@ -62,7 +62,6 @@ const char* password              = "w2jbMwtJdrvc"; // Add your Wi-Fi password
 int msgCounter = 0;
 bool lastButtonState = HIGH;
 
-uint8_t number = 0;
 
 
 // TASK HANDLES 
@@ -118,11 +117,9 @@ void setup() {
   /* Configure all others here */
   pinMode(LED_A,OUTPUT);
   pinMode(LED_B,OUTPUT);
-  pinMode(BTN_A,OUTPUT);
+  pinMode(BTN_A,INPUT_PULLUP);
 
-  //Intial states
-  digitalWrite(LED_A, LOW);
-  digitalWrite(LED_B, LOW);
+  Display(8);
 
 
   initialize();           // INIT WIFI, MQTT & NTP 
@@ -158,7 +155,7 @@ void vButtonCheck( void * pvParameters )  {
 
           msgCounter++;
           number = msgCounter % 10;
-          vDisplay(number);
+          Display(number);
 
           GDP();
 
@@ -262,7 +259,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     doc["ledB"] = getLEDStatus(LED_B);
 
     serializeJson(doc, message);  // Seralize / Covert JSon object to JSon string and store in char* array  
-    publish("topic", message);    // Publish to a topic that only the Frontend subscribes to.
+    publish(pubtopic, message);    // Publish to a topic that only the Frontend subscribes to.
           
   } 
 
@@ -411,7 +408,7 @@ void setLEDState(int8_t LED, int8_t state){
 
 void toggleLED(int8_t LED){
   // TOGGLES THE STATE OF SPECIFIC LED
-  int8_t currentState = getLEDstatus(LED);
+  int8_t currentState = getLEDStatus(LED);
   setLEDState(LED, !currentState);   
 }
 
@@ -426,7 +423,7 @@ void GDP(void){
 
   // DISPLAY integer on 7Seg. by 
   /* Add code here to calling appropriate function that will display integer to 7-Seg*/
-  vDisplay(number);
+  Display(number);
   // PUBLISH number to topic.
   JsonDocument doc; // Create JSon object
   char message[1100]  = {0};

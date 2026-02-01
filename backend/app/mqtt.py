@@ -35,10 +35,10 @@ class MQTT:
 
         # REGISTER CALLBACK FUNCTION FOR EACH TOPIC
         self.client.message_callback_add("620172489", self.gdp)
-        self.client.message_callback_add("620172489_pub", self.toggle)
+        self.client.message_callback_add("620172489_sub", self.toggle)
 
         # ADD MQTT SERVER AND PORT INFORMATION BELOW
-        self.client.connect_async("localhost", 1883, 60)
+        self.client.connect_async("www.yanacreations.com", 1883, 60)
        
 
 
@@ -85,7 +85,7 @@ class MQTT:
         try:
             topic   = msg.topic
             payload = msg.payload.decode("utf-8")
-            #print(payload) # UNCOMMENT WHEN DEBUGGING  
+            print(payload) # UNCOMMENT WHEN DEBUGGING  
             
             update  = loads(payload) # CONVERT FROM JSON STRING TO JSON OBJECT  
             self.mongo.addUpdate(update) # INSERT INTO DATABASE 
@@ -100,7 +100,7 @@ class MQTT:
             payload = msg.payload.decode("utf-8")
             # print(payload) # UNCOMMENT WHEN DEBUGGING
             update  = loads(payload) # CONVERT FROM JSON STRING TO JSON OBJECT  
-        
+            self.publish("620172489_sub", payload)        
              
             print(update)
 
