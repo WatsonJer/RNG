@@ -125,6 +125,7 @@ void setup() {
   initialize();           // INIT WIFI, MQTT & NTP 
   vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
 
+ 
 }
   
 
@@ -147,28 +148,19 @@ void vButtonCheck( void * pvParameters )  {
     for( ;; ) {
         // Add code here to check if a button(S) is pressed
         // then execute appropriate function if a button is pressed
-        int currentButtonState = digitalRead(BTN_A);
-
-        if(currentButtonState == LOW && lastButtonState == HIGH){
-          Serial.println("Button pressed!");
-          toggleLED(LED_A);
-
-          msgCounter++;
-          number = msgCounter % 10;
-          Display(number);
-
+        if (digitalRead(BTN_A) == LOW) {
           GDP();
+        }
 
           while(digitalRead(BTN_A) == LOW){
             vTaskDelay(10/ portTICK_PERIOD_MS);
           }
         }
-        lastButtonState = currentButtonState;
+
 
 
         vTaskDelay(200 / portTICK_PERIOD_MS);  
     }
-}
 
 void vUpdate( void * pvParameters )  {
     configASSERT( ( ( uint32_t ) pvParameters ) == 1 );    
