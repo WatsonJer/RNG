@@ -141,7 +141,7 @@ export const useMqttStore = defineStore(
       );
     };
 
-    const unsubcribe = (topic) => {
+    const unsubscribe = (topic) => {
       // Unsubscribe for messages, stop receiving messages sent to destinations described by the filter.
       var unsubscribeOptions = {
         onSuccess: unSub_onSuccess,
@@ -151,7 +151,7 @@ export const useMqttStore = defineStore(
       mqtt.value.unsubscribe(topic, unsubscribeOptions);
     };
 
-    const unsubcribeAll = () => {
+    const unsubscribeAll = () => {
       // Unsubscribe for messages, stop receiving messages sent to destinations described by the filter.
       const topics = Object.keys(subTopics.value);
       if (topics.length > 0) {
@@ -212,8 +212,8 @@ export const useMqttStore = defineStore(
       payload,
       payloadTopic,
       subscribe,
-      unsubcribe,
-      unsubcribeAll,
+      unsubscribe,
+      unsubscribeAll,
       publish,
       connect,
       disconnect,

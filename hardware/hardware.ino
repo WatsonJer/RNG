@@ -33,19 +33,19 @@
 /* Complete all others */
 #define b 32
 #define c 33
-#define d 25
+#define d 12
 #define e 26
 #define f 27
 #define g 14
-#define dp 12
+#define dp 25
 
 
 
 // DEFINE VARIABLES FOR TWO LEDs AND TWO BUTTONs. LED_A, LED_B, BTN_A , BTN_B
-#define LED_A 13
+#define LED_A 19
 /* Complete all others */
-#define LED_B 9
-#define BTN_A 10
+#define LED_B 18
+#define BTN_A 5
 
 
 
@@ -152,14 +152,9 @@ void vButtonCheck( void * pvParameters )  {
           GDP();
         }
 
-          while(digitalRead(BTN_A) == LOW){
-            vTaskDelay(10/ portTICK_PERIOD_MS);
-          }
-        }
 
-
-
-        vTaskDelay(200 / portTICK_PERIOD_MS);  
+        vTaskDelay(200 / portTICK_PERIOD_MS);
+      }  
     }
 
 void vUpdate( void * pvParameters )  {
@@ -277,111 +272,26 @@ bool publish(const char *topic, const char *payload){
 
 void Display(unsigned char number){
   /* This function takes an integer between 0 and 9 as input. This integer must be written to the 7-Segment display */
-  digitalWrite(a, LOW);
-  digitalWrite(b, LOW);
-  digitalWrite(c, LOW);
-  digitalWrite(d, LOW);
-  digitalWrite(e, LOW);
-  digitalWrite(f, LOW);
-  digitalWrite(g, LOW);
-  digitalWrite(dp, LOW);
-  
-  // Display numbers 0-9 on 7-segment display
-  switch(number) {
-    case 0:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, HIGH);
-      digitalWrite(f, HIGH);
-      digitalWrite(g, LOW);
-      break;
-    case 1:
-      digitalWrite(a, LOW);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, LOW);
-      digitalWrite(e, LOW);
-      digitalWrite(f, LOW);
-      digitalWrite(g, LOW);
-      break;
-    case 2:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, LOW);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, HIGH);
-      digitalWrite(f, LOW);
-      digitalWrite(g, HIGH);
-      break;
-    case 3:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, LOW);
-      digitalWrite(f, LOW);
-      digitalWrite(g, HIGH);
-      break;
-    case 4:
-      digitalWrite(a, LOW);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, LOW);
-      digitalWrite(e, LOW);
-      digitalWrite(f, HIGH);
-      digitalWrite(g, HIGH);
-      break;
-    case 5:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, LOW);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, LOW);
-      digitalWrite(f, HIGH);
-      digitalWrite(g, HIGH);
-      break;
-    case 6:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, LOW);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, HIGH);
-      digitalWrite(f, HIGH);
-      digitalWrite(g, HIGH);
-      break;
-    case 7:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, LOW);
-      digitalWrite(e, LOW);
-      digitalWrite(f, LOW);
-      digitalWrite(g, LOW);
-      break;
-    case 8:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, HIGH);
-      digitalWrite(f, HIGH);
-      digitalWrite(g, HIGH);
-      break;
-    case 9:
-      digitalWrite(a, HIGH);
-      digitalWrite(b, HIGH);
-      digitalWrite(c, HIGH);
-      digitalWrite(d, HIGH);
-      digitalWrite(e, LOW);
-      digitalWrite(f, HIGH);
-      digitalWrite(g, HIGH);
-      break;
-    default:
-      // Turn off all segments for invalid numbers
-      break;
-  }
+  const uint8_t digits[10] = {// 0-9
+    0b00111111, 
+    0b00000110, 
+    0b01011011, 
+    0b01001111, 
+    0b01100110, 
+    0b01101101, 
+    0b01111101, 
+    0b00000111, 
+    0b01111111, 
+    0b01101111  
+  };
+  uint8_t segments = digits[number % 10];
+  digitalWrite(a, (segments >> 0) & 1);
+  digitalWrite(b, (segments >> 1) & 1);
+  digitalWrite(c, (segments >> 2) & 1);
+  digitalWrite(d, (segments >> 3) & 1);
+  digitalWrite(e, (segments >> 4) & 1);
+  digitalWrite(f, (segments >> 5) & 1);
+  digitalWrite(g, (segments >> 6) & 1);
 }
 
 int8_t getLEDStatus(int8_t LED) {
