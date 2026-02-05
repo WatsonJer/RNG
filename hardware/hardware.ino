@@ -56,8 +56,8 @@ static const char* mqtt_server    = "www.yanacreations.com";                // B
 static uint16_t mqtt_port         = 1883;
 
 // WIFI CREDENTIALS
-const char* ssid                  = "CWC-1528429"; // Add your Wi-Fi ssid
-const char* password              = "w2jbMwtJdrvc"; // Add your Wi-Fi password 
+const char* ssid                  = "MonaConnect"; // Add your Wi-Fi ssid
+const char* password              = ""; // Add your Wi-Fi password 
 
 int msgCounter = 0;
 bool lastButtonState = HIGH;
